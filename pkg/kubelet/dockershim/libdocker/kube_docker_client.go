@@ -678,5 +678,8 @@ func (d *kubeDockerClient) StartContainerFromCheckpoint(id string) error {
 	ctx, cancel := d.getTimeoutContext()
 	defer cancel()
 	err := d.client.ContainerStart(ctx, id, dockertypes.ContainerStartOptions{"savedState", ""})
+	if ctxErr := contextError(ctx); ctxErr != nil {
+		return ctxErr
+	}
 	return err
 }
