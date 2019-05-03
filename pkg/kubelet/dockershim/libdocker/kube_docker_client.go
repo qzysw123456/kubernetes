@@ -673,3 +673,10 @@ func IsImageNotFoundError(err error) bool {
 	_, ok := err.(ImageNotFoundError)
 	return ok
 }
+
+func (d *kubeDockerClient) StartContainerFromCheckpoint(id string) error {
+	ctx, cancel := d.getTimeoutContext()
+	defer cancel()
+	err := d.client.ContainerStart(ctx, id, dockertypes.ContainerStartOptions{"savedState", ""})
+	return err
+}

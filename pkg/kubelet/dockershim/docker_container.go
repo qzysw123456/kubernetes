@@ -262,6 +262,12 @@ func (ds *dockerService) removeContainerLogSymlink(containerID string) error {
 
 // StartContainer starts the container.
 func (ds *dockerService) StartContainer(_ context.Context, r *runtimeapi.StartContainerRequest) (*runtimeapi.StartContainerResponse, error) {
+
+	if _, Err := os.Stat("/home/qzy/checkpoint"); !os.IsNotExist(Err) {
+		// path/to/whatever exists
+		os.Create("/home/qzy/ack")
+	}
+
 	err := ds.client.StartContainer(r.ContainerId)
 
 	// Create container log symlink for all containers (including failed ones).

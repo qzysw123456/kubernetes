@@ -274,3 +274,7 @@ func (in instrumentedInterface) GetContainerStats(id string) (*dockertypes.Stats
 	recordError(operation, err)
 	return out, err
 }
+
+func (in instrumentedInterface) StartContainerFromCheckpoint(id string) error {
+	return nil
+}

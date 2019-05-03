@@ -919,3 +919,7 @@ func (f *FakeDockerClient) GetContainerStats(id string) (*dockertypes.StatsJSON,
 	f.appendCalled(CalledDetail{name: "getContainerStats"})
 	return nil, fmt.Errorf("not implemented")
 }
+
+func (f *FakeDockerClient) StartContainerFromCheckpoint(id string) error {
+	return nil
+}
