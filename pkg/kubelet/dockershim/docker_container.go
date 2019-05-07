@@ -20,7 +20,7 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"os/exec"
+//	"os/exec"
 	"path/filepath"
 	"time"
 
@@ -263,20 +263,43 @@ func (ds *dockerService) removeContainerLogSymlink(containerID string) error {
 
 // StartContainer starts the container.
 func (ds *dockerService) StartContainer(_ context.Context, r *runtimeapi.StartContainerRequest) (*runtimeapi.StartContainerResponse, error) {
-
+/*
 	var err error
-	if _, Err := os.Stat("/home/qzy/checkpoint"); !os.IsNotExist(Err) {
+	var Err error
+	if _, pathErr := os.Stat("/home/qzy/checkpoint"); !os.IsNotExist(pathErr) {
 		// path/to/whatever exists
-		os.Create("/home/qzy/ack")
+		//os.Create("/home/qzy/ack")
+		f, _:= os.Create("/home/qzy/ack0413")
 		dest := "/var/lib/docker/containers/" + r.ContainerId + "/checkpoints"
-		cmd := exec.Command("mv", "/home/qzy/checkpoint/savedState", dest)
-		cmd.Run()
-		cmd.Wait()
-		err = ds.client.StartContainerFromCheckpoint(r.ContainerId)
-	} else {
-		err = ds.client.StartContainer(r.ContainerId)
+		cmd := exec.Command("sudo", "cp", "-r", "/home/qzy/checkpoint/savedState", dest)
+		f.WriteString(r.ContainerId)
+		Err = cmd.Run()
+		os.Create("/home/qzy/called" + time.Now().String())
+                if Err != nil {
+		       fuck, _ := os.Create("/home/qzy/runerr")
+		       fuck.WriteString(Err.Error())
+		} else {
+		//	err = ds.client.StartContainerFromCheckpoint(r.ContainerId)
+                //        if err != nil {
+                 //              os.Create("/home/qzy/crcnm")
+                   //     }
+			err = ds.client.StartContainer(r.ContainerId)
+		        if err != nil {
+			       os.Create("/home/qzy/stcnm")
+		        }
+			return &runtimeapi.StartContainerResponse{}, nil
+		}
 	}
+	*/
+//	err = ds.client.StartContainerFromCheckpoint(r.ContainerId)
+//	if err != nil {
 
+		err := ds.client.StartContainer(r.ContainerId)
+		if err != nil {
+			os.Create("/home/qzy/cnm")
+		}
+//	}
+/*
 	// Create container log symlink for all containers (including failed ones).
 	if linkError := ds.createContainerLogSymlink(r.ContainerId); linkError != nil {
 		// Do not stop the container if we failed to create symlink because:
@@ -292,7 +315,7 @@ func (ds *dockerService) StartContainer(_ context.Context, r *runtimeapi.StartCo
 	}
 
 	ds.performPlatformSpecificContainerForContainer(r.ContainerId)
-
+*/
 	return &runtimeapi.StartContainerResponse{}, nil
 }
 

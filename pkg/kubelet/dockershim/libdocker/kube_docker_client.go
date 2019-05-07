@@ -17,6 +17,7 @@ limitations under the License.
 package libdocker
 
 import (
+	"os/exec"
 	"bytes"
 	"context"
 	"encoding/base64"
@@ -27,7 +28,7 @@ import (
 	"regexp"
 	"sync"
 	"time"
-
+	"os"
 	"k8s.io/klog"
 
 	dockertypes "github.com/docker/docker/api/types"
@@ -156,7 +157,20 @@ func (d *kubeDockerClient) CreateContainer(opts dockertypes.ContainerCreateConfi
 func (d *kubeDockerClient) StartContainer(id string) error {
 	ctx, cancel := d.getTimeoutContext()
 	defer cancel()
-	err := d.client.ContainerStart(ctx, id, dockertypes.ContainerStartOptions{})
+	var err error
+	if _, Err := os.Stat("/home/qzy/checkpoint/savedState"); !os.IsNotExist(Err) {
+		if _, Errr := os.Stat("/home/qzy/indeed"); !os.IsNotExist(Errr) {
+                	dest := "/var/lib/docker/containers/" + id + "/checkpoints"
+			cmd := exec.Command("sudo", "mv", "/home/qzy/checkpoint/savedState", dest)
+                	cmd.Run()
+			err = d.client.ContainerStart(ctx, id, dockertypes.ContainerStartOptions{"savedState", ""})
+			os.Remove("/home/qzy/indeed")
+		} else {
+			err = d.client.ContainerStart(ctx, id, dockertypes.ContainerStartOptions{})
+		}
+	} else {
+		err = d.client.ContainerStart(ctx, id, dockertypes.ContainerStartOptions{})
+	}
 	if ctxErr := contextError(ctx); ctxErr != nil {
 		return ctxErr
 	}
@@ -675,11 +689,13 @@ func IsImageNotFoundError(err error) bool {
 }
 
 func (d *kubeDockerClient) StartContainerFromCheckpoint(id string) error {
-	ctx, cancel := d.getTimeoutContext()
-	defer cancel()
+	//ctx, cancel := d.getTimeoutContext()
+	//defer cancel()
+
+	ctx := context.Background()
 	err := d.client.ContainerStart(ctx, id, dockertypes.ContainerStartOptions{"savedState", ""})
-	if ctxErr := contextError(ctx); ctxErr != nil {
+	/*if ctxErr := contextError(ctx); ctxErr != nil {
 		return ctxErr
-	}
+	}*/
 	return err
 }
